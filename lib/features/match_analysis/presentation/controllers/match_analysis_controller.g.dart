@@ -7,7 +7,7 @@ part of 'match_analysis_controller.dart';
 // **************************************************************************
 
 String _$matchAnalysisControllerHash() =>
-    r'8838d651db8cbf6247b35b1caddb02d3bff91eff';
+    r'ca5e5d19644e3ad046ca84461261a04ba8223135';
 
 /// See also [MatchAnalysisController].
 @ProviderFor(MatchAnalysisController)

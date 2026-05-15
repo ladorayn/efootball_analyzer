@@ -91,8 +91,18 @@ class MatchStatsScreen extends ConsumerWidget {
       if (next is AsyncError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.error.toString().replaceAll('Exception: ', '')),
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text(next.error.toString().replaceAll('Exception: ', ''))),
+              ],
+            ),
             backgroundColor: Colors.red.shade900,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 4),
           ),
         );
       }

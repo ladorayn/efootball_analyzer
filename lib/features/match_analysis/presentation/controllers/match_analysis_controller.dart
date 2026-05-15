@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:efootball_analyzer/features/history/presentation/controllers/history_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:isar/isar.dart';
@@ -46,7 +47,7 @@ class MatchAnalysisController extends _$MatchAnalysisController {
       final parsed = MatchStatsParser.parse(ocrResult.elements);
 
       if (parsed == null) {
-        throw Exception("Could not parse screenshot. Raw Text:\n${ocrResult.text}");
+        throw Exception("Could not extract match statistics. Please make sure the image is clear and contains Half Time or Full Time stats.");
       }
 
       // Check for duplicates
@@ -112,6 +113,9 @@ class MatchAnalysisController extends _$MatchAnalysisController {
         });
       }
       
+      // Refresh history screen
+      ref.read(historyControllerProvider.notifier).refresh();
+
       // Reset draft
       state = AsyncData(MatchDraftState(
         record: MatchRecord(createdAt: DateTime.now()),
