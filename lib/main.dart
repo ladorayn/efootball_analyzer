@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
-import 'features/match_analysis/presentation/match_stats_screen.dart';
-import 'features/match_analysis/domain/match_stats.dart';
+import 'features/match_analysis/domain/match_record.dart';
+import 'features/core/presentation/main_scaffold.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,7 +11,7 @@ void main() async {
   // Initialize Isar for local storage
   final dir = await getApplicationDocumentsDirectory();
   await Isar.open(
-    [MatchStatsSchema],
+    [MatchRecordSchema],
     directory: dir.path,
   );
 
@@ -37,7 +37,7 @@ class EFootballAnalyzer extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const MatchStatsScreen(),
+      home: const MainScaffold(),
     );
   }
 }

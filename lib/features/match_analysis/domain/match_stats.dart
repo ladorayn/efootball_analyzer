@@ -6,28 +6,24 @@ part 'match_stats.freezed.dart';
 part 'match_stats.g.dart';
 
 @freezed
-@Collection(ignore: {'copyWith'})
+@Embedded(ignore: {'copyWith'})
 class MatchStats with _$MatchStats {
   const MatchStats._();
 
   const factory MatchStats({
-    @Default(Isar.autoIncrement) int id,
-    required String leftName,
-    required String rightName,
-    required int leftScore,
-    required int rightScore,
-    required List<String> leftStatsList,
-    required List<String> rightStatsList,
-    required String matchStatus,
+    @Default('') String leftName,
+    @Default('') String rightName,
+    @Default(0) int leftScore,
+    @Default(0) int rightScore,
+    @Default([]) List<String> leftStatsList,
+    @Default([]) List<String> rightStatsList,
+    @Default('Unknown') String matchStatus,
     String? userSide,
-    required DateTime createdAt,
   }) = _MatchStats;
 
   // Isar requires a default constructor for deserialization.
   // We use freezed's fromJson to handle JSON serialization (useful for AI models).
   factory MatchStats.fromJson(Map<String, dynamic> json) => _$MatchStatsFromJson(json);
-
-  Id get isarId => id; // Isar will use this as the primary key
 
   @ignore
   String get userName => userSide == 'left' ? leftName : rightName;

@@ -7,12 +7,12 @@ part of 'match_analysis_controller.dart';
 // **************************************************************************
 
 String _$matchAnalysisControllerHash() =>
-    r'9720df624b832c294ffbee3ced0c4333c525afc2';
+    r'8838d651db8cbf6247b35b1caddb02d3bff91eff';
 
 /// See also [MatchAnalysisController].
 @ProviderFor(MatchAnalysisController)
 final matchAnalysisControllerProvider = AutoDisposeAsyncNotifierProvider<
-    MatchAnalysisController, MatchStats?>.internal(
+    MatchAnalysisController, MatchDraftState>.internal(
   MatchAnalysisController.new,
   name: r'matchAnalysisControllerProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -22,6 +22,6 @@ final matchAnalysisControllerProvider = AutoDisposeAsyncNotifierProvider<
   allTransitiveDependencies: null,
 );
 
-typedef _$MatchAnalysisController = AutoDisposeAsyncNotifier<MatchStats?>;
+typedef _$MatchAnalysisController = AutoDisposeAsyncNotifier<MatchDraftState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

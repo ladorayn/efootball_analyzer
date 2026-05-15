@@ -20,7 +20,6 @@ MatchStats _$MatchStatsFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$MatchStats {
-  int get id => throw _privateConstructorUsedError;
   String get leftName => throw _privateConstructorUsedError;
   String get rightName => throw _privateConstructorUsedError;
   int get leftScore => throw _privateConstructorUsedError;
@@ -29,7 +28,6 @@ mixin _$MatchStats {
   List<String> get rightStatsList => throw _privateConstructorUsedError;
   String get matchStatus => throw _privateConstructorUsedError;
   String? get userSide => throw _privateConstructorUsedError;
-  DateTime get createdAt => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -44,16 +42,14 @@ abstract class $MatchStatsCopyWith<$Res> {
       _$MatchStatsCopyWithImpl<$Res, MatchStats>;
   @useResult
   $Res call(
-      {int id,
-      String leftName,
+      {String leftName,
       String rightName,
       int leftScore,
       int rightScore,
       List<String> leftStatsList,
       List<String> rightStatsList,
       String matchStatus,
-      String? userSide,
-      DateTime createdAt});
+      String? userSide});
 }
 
 /// @nodoc
@@ -69,7 +65,6 @@ class _$MatchStatsCopyWithImpl<$Res, $Val extends MatchStats>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
     Object? leftName = null,
     Object? rightName = null,
     Object? leftScore = null,
@@ -78,13 +73,8 @@ class _$MatchStatsCopyWithImpl<$Res, $Val extends MatchStats>
     Object? rightStatsList = null,
     Object? matchStatus = null,
     Object? userSide = freezed,
-    Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
       leftName: null == leftName
           ? _value.leftName
           : leftName // ignore: cast_nullable_to_non_nullable
@@ -117,10 +107,6 @@ class _$MatchStatsCopyWithImpl<$Res, $Val extends MatchStats>
           ? _value.userSide
           : userSide // ignore: cast_nullable_to_non_nullable
               as String?,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
     ) as $Val);
   }
 }
@@ -134,16 +120,14 @@ abstract class _$$MatchStatsImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      String leftName,
+      {String leftName,
       String rightName,
       int leftScore,
       int rightScore,
       List<String> leftStatsList,
       List<String> rightStatsList,
       String matchStatus,
-      String? userSide,
-      DateTime createdAt});
+      String? userSide});
 }
 
 /// @nodoc
@@ -157,7 +141,6 @@ class __$$MatchStatsImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
     Object? leftName = null,
     Object? rightName = null,
     Object? leftScore = null,
@@ -166,13 +149,8 @@ class __$$MatchStatsImplCopyWithImpl<$Res>
     Object? rightStatsList = null,
     Object? matchStatus = null,
     Object? userSide = freezed,
-    Object? createdAt = null,
   }) {
     return _then(_$MatchStatsImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
       leftName: null == leftName
           ? _value.leftName
           : leftName // ignore: cast_nullable_to_non_nullable
@@ -205,10 +183,6 @@ class __$$MatchStatsImplCopyWithImpl<$Res>
           ? _value.userSide
           : userSide // ignore: cast_nullable_to_non_nullable
               as String?,
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
     ));
   }
 }
@@ -217,16 +191,14 @@ class __$$MatchStatsImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MatchStatsImpl extends _MatchStats {
   const _$MatchStatsImpl(
-      {this.id = Isar.autoIncrement,
-      required this.leftName,
-      required this.rightName,
-      required this.leftScore,
-      required this.rightScore,
-      required final List<String> leftStatsList,
-      required final List<String> rightStatsList,
-      required this.matchStatus,
-      this.userSide,
-      required this.createdAt})
+      {this.leftName = '',
+      this.rightName = '',
+      this.leftScore = 0,
+      this.rightScore = 0,
+      final List<String> leftStatsList = const [],
+      final List<String> rightStatsList = const [],
+      this.matchStatus = 'Unknown',
+      this.userSide})
       : _leftStatsList = leftStatsList,
         _rightStatsList = rightStatsList,
         super._();
@@ -236,17 +208,19 @@ class _$MatchStatsImpl extends _MatchStats {
 
   @override
   @JsonKey()
-  final int id;
-  @override
   final String leftName;
   @override
+  @JsonKey()
   final String rightName;
   @override
+  @JsonKey()
   final int leftScore;
   @override
+  @JsonKey()
   final int rightScore;
   final List<String> _leftStatsList;
   @override
+  @JsonKey()
   List<String> get leftStatsList {
     if (_leftStatsList is EqualUnmodifiableListView) return _leftStatsList;
     // ignore: implicit_dynamic_type
@@ -255,6 +229,7 @@ class _$MatchStatsImpl extends _MatchStats {
 
   final List<String> _rightStatsList;
   @override
+  @JsonKey()
   List<String> get rightStatsList {
     if (_rightStatsList is EqualUnmodifiableListView) return _rightStatsList;
     // ignore: implicit_dynamic_type
@@ -262,15 +237,14 @@ class _$MatchStatsImpl extends _MatchStats {
   }
 
   @override
+  @JsonKey()
   final String matchStatus;
   @override
   final String? userSide;
-  @override
-  final DateTime createdAt;
 
   @override
   String toString() {
-    return 'MatchStats(id: $id, leftName: $leftName, rightName: $rightName, leftScore: $leftScore, rightScore: $rightScore, leftStatsList: $leftStatsList, rightStatsList: $rightStatsList, matchStatus: $matchStatus, userSide: $userSide, createdAt: $createdAt)';
+    return 'MatchStats(leftName: $leftName, rightName: $rightName, leftScore: $leftScore, rightScore: $rightScore, leftStatsList: $leftStatsList, rightStatsList: $rightStatsList, matchStatus: $matchStatus, userSide: $userSide)';
   }
 
   @override
@@ -278,7 +252,6 @@ class _$MatchStatsImpl extends _MatchStats {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MatchStatsImpl &&
-            (identical(other.id, id) || other.id == id) &&
             (identical(other.leftName, leftName) ||
                 other.leftName == leftName) &&
             (identical(other.rightName, rightName) ||
@@ -294,16 +267,13 @@ class _$MatchStatsImpl extends _MatchStats {
             (identical(other.matchStatus, matchStatus) ||
                 other.matchStatus == matchStatus) &&
             (identical(other.userSide, userSide) ||
-                other.userSide == userSide) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+                other.userSide == userSide));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      id,
       leftName,
       rightName,
       leftScore,
@@ -311,8 +281,7 @@ class _$MatchStatsImpl extends _MatchStats {
       const DeepCollectionEquality().hash(_leftStatsList),
       const DeepCollectionEquality().hash(_rightStatsList),
       matchStatus,
-      userSide,
-      createdAt);
+      userSide);
 
   @JsonKey(ignore: true)
   @override
@@ -330,23 +299,19 @@ class _$MatchStatsImpl extends _MatchStats {
 
 abstract class _MatchStats extends MatchStats {
   const factory _MatchStats(
-      {final int id,
-      required final String leftName,
-      required final String rightName,
-      required final int leftScore,
-      required final int rightScore,
-      required final List<String> leftStatsList,
-      required final List<String> rightStatsList,
-      required final String matchStatus,
-      final String? userSide,
-      required final DateTime createdAt}) = _$MatchStatsImpl;
+      {final String leftName,
+      final String rightName,
+      final int leftScore,
+      final int rightScore,
+      final List<String> leftStatsList,
+      final List<String> rightStatsList,
+      final String matchStatus,
+      final String? userSide}) = _$MatchStatsImpl;
   const _MatchStats._() : super._();
 
   factory _MatchStats.fromJson(Map<String, dynamic> json) =
       _$MatchStatsImpl.fromJson;
 
-  @override
-  int get id;
   @override
   String get leftName;
   @override
@@ -363,8 +328,6 @@ abstract class _MatchStats extends MatchStats {
   String get matchStatus;
   @override
   String? get userSide;
-  @override
-  DateTime get createdAt;
   @override
   @JsonKey(ignore: true)
   _$$MatchStatsImplCopyWith<_$MatchStatsImpl> get copyWith =>

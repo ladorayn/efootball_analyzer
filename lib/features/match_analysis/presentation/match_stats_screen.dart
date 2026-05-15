@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../domain/match_stats.dart';
-import 'controllers/match_analysis_controller.dart';
+import 'package:efootball_analyzer/features/match_analysis/domain/match_stats.dart';
+import 'package:efootball_analyzer/features/match_analysis/domain/match_record.dart';
+import 'package:efootball_analyzer/features/match_analysis/presentation/controllers/match_analysis_controller.dart';
+import 'package:efootball_analyzer/features/match_analysis/presentation/controllers/match_draft_state.dart';
 
 class MatchStatsScreen extends ConsumerWidget {
   const MatchStatsScreen({super.key});
 
-  void _showSideSelector(BuildContext context, WidgetRef ref, MatchStats stats) {
+  void _showPendingConfirmation(BuildContext context, WidgetRef ref, MatchStats stats) {
     showModalBottomSheet(
       context: context,
       isDismissible: false,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1A1A2E),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -17,17 +21,35 @@ class MatchStatsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Which side is you?',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Confirm OCR Data',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    ref.read(matchAnalysisControllerProvider.notifier).cancelPendingStats();
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Tap your club/name below',
-              style: TextStyle(fontSize: 13, color: Colors.grey),
+            Text(
+              'Detected Status: ${stats.matchStatus}',
+              style: const TextStyle(fontSize: 14, color: Colors.yellow),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            const Text(
+              'Which side is your team?',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
@@ -36,7 +58,7 @@ class MatchStatsScreen extends ConsumerWidget {
                     score: stats.leftScore,
                     onTap: () {
                       Navigator.pop(context);
-                      ref.read(matchAnalysisControllerProvider.notifier).selectSide('left');
+                      ref.read(matchAnalysisControllerProvider.notifier).confirmPendingStats('left');
                     },
                   ),
                 ),
@@ -47,13 +69,13 @@ class MatchStatsScreen extends ConsumerWidget {
                     score: stats.rightScore,
                     onTap: () {
                       Navigator.pop(context);
-                      ref.read(matchAnalysisControllerProvider.notifier).selectSide('right');
+                      ref.read(matchAnalysisControllerProvider.notifier).confirmPendingStats('right');
                     },
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -64,10 +86,26 @@ class MatchStatsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(matchAnalysisControllerProvider);
 
-    // If data just arrived and userSide is null, show selector
+    // Listen for errors
     ref.listen(matchAnalysisControllerProvider, (previous, next) {
-      if (next is AsyncData<MatchStats?> && next.value != null && next.value!.userSide == null) {
-        _showSideSelector(context, ref, next.value!);
+      if (next is AsyncError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.red.shade900,
+          ),
+        );
+      }
+    });
+
+    // Listen for pending stats to show confirmation dialog
+    ref.listen<AsyncValue<MatchDraftState>>(matchAnalysisControllerProvider, (previous, next) {
+      final pending = next.value?.pendingStats;
+      if (pending != null && (previous?.value?.pendingStats == null)) {
+        // Post frame callback to ensure build phase completes before showing dialog
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showPendingConfirmation(context, ref, pending);
+        });
       }
     });
 
@@ -76,54 +114,152 @@ class MatchStatsScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0D0D1A),
         title: const Text(
-          'eFootball Analyzer',
+          'New Match Record',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         actions: [
-          if (state.value != null)
-            IconButton(
-              icon: const Icon(Icons.refresh, color: Colors.white),
-              onPressed: () => ref.read(matchAnalysisControllerProvider.notifier).reset(),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+            onPressed: () => ref.read(matchAnalysisControllerProvider.notifier).resetDraft(),
+          ),
+        ],
+      ),
+      body: state.when(
+        data: (draft) => _buildBody(context, ref, draft),
+        loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
+        error: (err, _) => _buildBody(context, ref, state.valueOrNull), // fallback to previous state on error
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, WidgetRef ref, MatchDraftState? draft) {
+    if (draft == null) return const SizedBox.shrink();
+    
+    final record = draft.record;
+    final isComplete = record.halfTime != null || record.fullTime != null;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Action Buttons
+          ElevatedButton.icon(
+            onPressed: () => ref.read(matchAnalysisControllerProvider.notifier).importAndParse(),
+            icon: const Icon(Icons.add_a_photo),
+            label: const Text('Add Match Screenshot (HT / FT)'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1A237E),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          const Text(
+            'Draft Record',
+            style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+
+          // Half Time Slot
+          _DraftSlot(
+            title: 'Half Time Stats',
+            stats: record.halfTime,
+            icon: Icons.timelapse,
+          ),
+          const SizedBox(height: 12),
+          
+          // Full Time Slot
+          _DraftSlot(
+            title: 'Full Time Stats',
+            stats: record.fullTime,
+            icon: Icons.sports_soccer,
+          ),
+
+          const SizedBox(height: 32),
+
+          // Save Button
+          if (isComplete)
+            ElevatedButton(
+              onPressed: () {
+                ref.read(matchAnalysisControllerProvider.notifier).saveMatchRecord();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Match saved to history!'), backgroundColor: Colors.green),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green.shade700,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text('Save Match Record', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    );
+  }
+}
+
+class _DraftSlot extends StatelessWidget {
+  final String title;
+  final MatchStats? stats;
+  final IconData icon;
+
+  const _DraftSlot({required this.title, required this.stats, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    if (stats == null) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white12, style: BorderStyle.solid),
+        ),
+        child: Row(
           children: [
-            ElevatedButton.icon(
-              onPressed: state.isLoading 
-                  ? null 
-                  : () => ref.read(matchAnalysisControllerProvider.notifier).importAndParse(),
-              icon: const Icon(Icons.upload_rounded),
-              label: const Text('Import Match Screenshot'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A237E),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            state.when(
-              data: (stats) {
-                if (stats == null) return const SizedBox.shrink();
-                if (stats.userSide == null) return const SizedBox.shrink();
-                return _MatchResultCard(stats: stats);
-              },
-              loading: () => const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: CircularProgressIndicator(color: Colors.white),
-                ),
-              ),
-              error: (err, _) => _ErrorCard(errorText: err.toString()),
-            ),
+            Icon(icon, color: Colors.grey),
+            const SizedBox(width: 16),
+            Text(title, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+            const Spacer(),
+            const Text('Pending', style: TextStyle(color: Colors.orange, fontSize: 12)),
           ],
         ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A2E),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.shade800),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: Colors.green),
+              const SizedBox(width: 12),
+              Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              const Spacer(),
+              const Icon(Icons.check_circle, color: Colors.green, size: 20),
+            ],
+          ),
+          const Divider(color: Colors.white12, height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('${stats!.userName} (You)', style: const TextStyle(color: Colors.blueAccent)),
+              Text('${stats!.userScore} - ${stats!.opponentScore}', style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 18)),
+              Text(stats!.opponentName, style: const TextStyle(color: Colors.redAccent)),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -174,252 +310,6 @@ class _SideButton extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// --- Result Card ---
-class _MatchResultCard extends StatelessWidget {
-  final MatchStats stats;
-
-  const _MatchResultCard({required this.stats});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A1A2E),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _getResultColor(stats.result).withOpacity(0.5)),
-          ),
-          child: Column(
-            children: [
-              Text(
-                stats.result,
-                style: TextStyle(
-                  color: stats.resultColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                ),
-              ),
-              if (stats.matchStatus != 'Unknown') ...[
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: stats.matchStatus == 'Full Time' 
-                      ? Colors.blue.withOpacity(0.2)
-                      : Colors.orange.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    stats.matchStatus.toUpperCase(),
-                    style: TextStyle(
-                      color: stats.matchStatus == 'Full Time' ? Colors.blue : Colors.orange,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      stats.userName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                      textAlign: TextAlign.right,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      '${stats.userScore}  —  ${stats.opponentScore}',
-                      style: const TextStyle(
-                        color: Colors.yellow,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      stats.opponentName,
-                      style: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A1A2E),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'You',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'Stat',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'Opponent',
-                        style: TextStyle(color: Colors.grey, fontSize: 13),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(color: Colors.white12),
-              ...stats.userStats.entries.map((entry) {
-                return _StatRow(
-                  label: entry.key,
-                  userValue: entry.value,
-                  opponentValue: stats.opponentStats[entry.key] ?? '-',
-                );
-              }),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Color _getResultColor(String result) {
-    if (result == 'WIN') return const Color(0xFF1D9E75);
-    if (result == 'LOSS') return const Color(0xFFE24B4A);
-    return const Color(0xFFBA7517);
-  }
-}
-
-// --- Stat Row ---
-class _StatRow extends StatelessWidget {
-  final String label;
-  final String userValue;
-  final String opponentValue;
-
-  const _StatRow({
-    required this.label,
-    required this.userValue,
-    required this.opponentValue,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              userValue,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              label,
-              style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              opponentValue,
-              style: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// --- Error Card ---
-class _ErrorCard extends StatelessWidget {
-  final String errorText;
-
-  const _ErrorCard({required this.errorText});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2A1A1A),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.shade900),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Could not parse this screenshot',
-            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Make sure you import the match stats screen showing Possession, Shots, and Passes.',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            errorText,
-            style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 11,
-              fontFamily: 'monospace',
-            ),
-          ),
-        ],
       ),
     );
   }

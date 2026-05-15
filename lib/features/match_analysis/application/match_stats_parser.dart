@@ -198,7 +198,6 @@ class MatchStatsParser {
       leftStatsList: leftStatsList,
       rightStatsList: rightStatsList,
       matchStatus: matchStatus,
-      createdAt: DateTime.now(),
     );
   }
 
