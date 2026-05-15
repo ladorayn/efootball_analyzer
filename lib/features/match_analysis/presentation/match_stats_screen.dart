@@ -202,12 +202,32 @@ class _MatchResultCard extends StatelessWidget {
               Text(
                 stats.result,
                 style: TextStyle(
-                  color: _getResultColor(stats.result),
+                  color: stats.resultColor,
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
                 ),
               ),
+              if (stats.matchStatus != 'Unknown') ...[
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: stats.matchStatus == 'Full Time' 
+                      ? Colors.blue.withOpacity(0.2)
+                      : Colors.orange.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    stats.matchStatus.toUpperCase(),
+                    style: TextStyle(
+                      color: stats.matchStatus == 'Full Time' ? Colors.blue : Colors.orange,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

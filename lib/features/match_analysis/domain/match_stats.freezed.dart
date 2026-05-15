@@ -27,6 +27,7 @@ mixin _$MatchStats {
   int get rightScore => throw _privateConstructorUsedError;
   List<String> get leftStatsList => throw _privateConstructorUsedError;
   List<String> get rightStatsList => throw _privateConstructorUsedError;
+  String get matchStatus => throw _privateConstructorUsedError;
   String? get userSide => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
 
@@ -50,6 +51,7 @@ abstract class $MatchStatsCopyWith<$Res> {
       int rightScore,
       List<String> leftStatsList,
       List<String> rightStatsList,
+      String matchStatus,
       String? userSide,
       DateTime createdAt});
 }
@@ -74,6 +76,7 @@ class _$MatchStatsCopyWithImpl<$Res, $Val extends MatchStats>
     Object? rightScore = null,
     Object? leftStatsList = null,
     Object? rightStatsList = null,
+    Object? matchStatus = null,
     Object? userSide = freezed,
     Object? createdAt = null,
   }) {
@@ -106,6 +109,10 @@ class _$MatchStatsCopyWithImpl<$Res, $Val extends MatchStats>
           ? _value.rightStatsList
           : rightStatsList // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      matchStatus: null == matchStatus
+          ? _value.matchStatus
+          : matchStatus // ignore: cast_nullable_to_non_nullable
+              as String,
       userSide: freezed == userSide
           ? _value.userSide
           : userSide // ignore: cast_nullable_to_non_nullable
@@ -134,6 +141,7 @@ abstract class _$$MatchStatsImplCopyWith<$Res>
       int rightScore,
       List<String> leftStatsList,
       List<String> rightStatsList,
+      String matchStatus,
       String? userSide,
       DateTime createdAt});
 }
@@ -156,6 +164,7 @@ class __$$MatchStatsImplCopyWithImpl<$Res>
     Object? rightScore = null,
     Object? leftStatsList = null,
     Object? rightStatsList = null,
+    Object? matchStatus = null,
     Object? userSide = freezed,
     Object? createdAt = null,
   }) {
@@ -188,6 +197,10 @@ class __$$MatchStatsImplCopyWithImpl<$Res>
           ? _value._rightStatsList
           : rightStatsList // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      matchStatus: null == matchStatus
+          ? _value.matchStatus
+          : matchStatus // ignore: cast_nullable_to_non_nullable
+              as String,
       userSide: freezed == userSide
           ? _value.userSide
           : userSide // ignore: cast_nullable_to_non_nullable
@@ -211,6 +224,7 @@ class _$MatchStatsImpl extends _MatchStats {
       required this.rightScore,
       required final List<String> leftStatsList,
       required final List<String> rightStatsList,
+      required this.matchStatus,
       this.userSide,
       required this.createdAt})
       : _leftStatsList = leftStatsList,
@@ -248,13 +262,15 @@ class _$MatchStatsImpl extends _MatchStats {
   }
 
   @override
+  final String matchStatus;
+  @override
   final String? userSide;
   @override
   final DateTime createdAt;
 
   @override
   String toString() {
-    return 'MatchStats(id: $id, leftName: $leftName, rightName: $rightName, leftScore: $leftScore, rightScore: $rightScore, leftStatsList: $leftStatsList, rightStatsList: $rightStatsList, userSide: $userSide, createdAt: $createdAt)';
+    return 'MatchStats(id: $id, leftName: $leftName, rightName: $rightName, leftScore: $leftScore, rightScore: $rightScore, leftStatsList: $leftStatsList, rightStatsList: $rightStatsList, matchStatus: $matchStatus, userSide: $userSide, createdAt: $createdAt)';
   }
 
   @override
@@ -275,6 +291,8 @@ class _$MatchStatsImpl extends _MatchStats {
                 .equals(other._leftStatsList, _leftStatsList) &&
             const DeepCollectionEquality()
                 .equals(other._rightStatsList, _rightStatsList) &&
+            (identical(other.matchStatus, matchStatus) ||
+                other.matchStatus == matchStatus) &&
             (identical(other.userSide, userSide) ||
                 other.userSide == userSide) &&
             (identical(other.createdAt, createdAt) ||
@@ -292,6 +310,7 @@ class _$MatchStatsImpl extends _MatchStats {
       rightScore,
       const DeepCollectionEquality().hash(_leftStatsList),
       const DeepCollectionEquality().hash(_rightStatsList),
+      matchStatus,
       userSide,
       createdAt);
 
@@ -318,6 +337,7 @@ abstract class _MatchStats extends MatchStats {
       required final int rightScore,
       required final List<String> leftStatsList,
       required final List<String> rightStatsList,
+      required final String matchStatus,
       final String? userSide,
       required final DateTime createdAt}) = _$MatchStatsImpl;
   const _MatchStats._() : super._();
@@ -339,6 +359,8 @@ abstract class _MatchStats extends MatchStats {
   List<String> get leftStatsList;
   @override
   List<String> get rightStatsList;
+  @override
+  String get matchStatus;
   @override
   String? get userSide;
   @override

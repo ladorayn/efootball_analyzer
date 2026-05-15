@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';
+import 'package:flutter/material.dart';
 
 part 'match_stats.freezed.dart';
 part 'match_stats.g.dart';
@@ -17,6 +18,7 @@ class MatchStats with _$MatchStats {
     required int rightScore,
     required List<String> leftStatsList,
     required List<String> rightStatsList,
+    required String matchStatus,
     String? userSide,
     required DateTime createdAt,
   }) = _MatchStats;
@@ -60,5 +62,12 @@ class MatchStats with _$MatchStats {
     if (userScore > opponentScore) return 'WIN';
     if (userScore < opponentScore) return 'LOSS';
     return 'DRAW';
+  }
+
+  @ignore
+  Color get resultColor {
+    if (result == 'WIN') return const Color(0xFF1D9E75);
+    if (result == 'LOSS') return const Color(0xFFE24B4A);
+    return const Color(0xFFBA7517);
   }
 }

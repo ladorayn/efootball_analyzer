@@ -42,23 +42,28 @@ const MatchStatsSchema = CollectionSchema(
       name: r'leftStatsList',
       type: IsarType.stringList,
     ),
-    r'rightName': PropertySchema(
+    r'matchStatus': PropertySchema(
       id: 5,
+      name: r'matchStatus',
+      type: IsarType.string,
+    ),
+    r'rightName': PropertySchema(
+      id: 6,
       name: r'rightName',
       type: IsarType.string,
     ),
     r'rightScore': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'rightScore',
       type: IsarType.long,
     ),
     r'rightStatsList': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'rightStatsList',
       type: IsarType.stringList,
     ),
     r'userSide': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'userSide',
       type: IsarType.string,
     )
@@ -91,6 +96,7 @@ int _matchStatsEstimateSize(
       bytesCount += value.length * 3;
     }
   }
+  bytesCount += 3 + object.matchStatus.length * 3;
   bytesCount += 3 + object.rightName.length * 3;
   bytesCount += 3 + object.rightStatsList.length * 3;
   {
@@ -119,10 +125,11 @@ void _matchStatsSerialize(
   writer.writeString(offsets[2], object.leftName);
   writer.writeLong(offsets[3], object.leftScore);
   writer.writeStringList(offsets[4], object.leftStatsList);
-  writer.writeString(offsets[5], object.rightName);
-  writer.writeLong(offsets[6], object.rightScore);
-  writer.writeStringList(offsets[7], object.rightStatsList);
-  writer.writeString(offsets[8], object.userSide);
+  writer.writeString(offsets[5], object.matchStatus);
+  writer.writeString(offsets[6], object.rightName);
+  writer.writeLong(offsets[7], object.rightScore);
+  writer.writeStringList(offsets[8], object.rightStatsList);
+  writer.writeString(offsets[9], object.userSide);
 }
 
 MatchStats _matchStatsDeserialize(
@@ -137,10 +144,11 @@ MatchStats _matchStatsDeserialize(
     leftName: reader.readString(offsets[2]),
     leftScore: reader.readLong(offsets[3]),
     leftStatsList: reader.readStringList(offsets[4]) ?? [],
-    rightName: reader.readString(offsets[5]),
-    rightScore: reader.readLong(offsets[6]),
-    rightStatsList: reader.readStringList(offsets[7]) ?? [],
-    userSide: reader.readStringOrNull(offsets[8]),
+    matchStatus: reader.readString(offsets[5]),
+    rightName: reader.readString(offsets[6]),
+    rightScore: reader.readLong(offsets[7]),
+    rightStatsList: reader.readStringList(offsets[8]) ?? [],
+    userSide: reader.readStringOrNull(offsets[9]),
   );
   return object;
 }
@@ -165,10 +173,12 @@ P _matchStatsDeserializeProp<P>(
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readLong(offset)) as P;
     case 8:
+      return (reader.readStringList(offset) ?? []) as P;
+    case 9:
       return (reader.readStringOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -841,6 +851,142 @@ extension MatchStatsQueryFilter
     });
   }
 
+  QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition>
+      matchStatusEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'matchStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition>
+      matchStatusGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'matchStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition>
+      matchStatusLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'matchStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition>
+      matchStatusBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'matchStatus',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition>
+      matchStatusStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'matchStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition>
+      matchStatusEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'matchStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition>
+      matchStatusContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'matchStatus',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition>
+      matchStatusMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'matchStatus',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition>
+      matchStatusIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'matchStatus',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition>
+      matchStatusIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'matchStatus',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<MatchStats, MatchStats, QAfterFilterCondition> rightNameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1464,6 +1610,18 @@ extension MatchStatsQuerySortBy
     });
   }
 
+  QueryBuilder<MatchStats, MatchStats, QAfterSortBy> sortByMatchStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'matchStatus', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterSortBy> sortByMatchStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'matchStatus', Sort.desc);
+    });
+  }
+
   QueryBuilder<MatchStats, MatchStats, QAfterSortBy> sortByRightName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'rightName', Sort.asc);
@@ -1563,6 +1721,18 @@ extension MatchStatsQuerySortThenBy
     });
   }
 
+  QueryBuilder<MatchStats, MatchStats, QAfterSortBy> thenByMatchStatus() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'matchStatus', Sort.asc);
+    });
+  }
+
+  QueryBuilder<MatchStats, MatchStats, QAfterSortBy> thenByMatchStatusDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'matchStatus', Sort.desc);
+    });
+  }
+
   QueryBuilder<MatchStats, MatchStats, QAfterSortBy> thenByRightName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'rightName', Sort.asc);
@@ -1633,6 +1803,13 @@ extension MatchStatsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<MatchStats, MatchStats, QDistinct> distinctByMatchStatus(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'matchStatus', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<MatchStats, MatchStats, QDistinct> distinctByRightName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -1699,6 +1876,12 @@ extension MatchStatsQueryProperty
     });
   }
 
+  QueryBuilder<MatchStats, String, QQueryOperations> matchStatusProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'matchStatus');
+    });
+  }
+
   QueryBuilder<MatchStats, String, QQueryOperations> rightNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'rightName');
@@ -1742,6 +1925,7 @@ _$MatchStatsImpl _$$MatchStatsImplFromJson(Map<String, dynamic> json) =>
       rightStatsList: (json['rightStatsList'] as List<dynamic>)
           .map((e) => e as String)
           .toList(),
+      matchStatus: json['matchStatus'] as String,
       userSide: json['userSide'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
@@ -1755,6 +1939,7 @@ Map<String, dynamic> _$$MatchStatsImplToJson(_$MatchStatsImpl instance) =>
       'rightScore': instance.rightScore,
       'leftStatsList': instance.leftStatsList,
       'rightStatsList': instance.rightStatsList,
+      'matchStatus': instance.matchStatus,
       'userSide': instance.userSide,
       'createdAt': instance.createdAt.toIso8601String(),
     };

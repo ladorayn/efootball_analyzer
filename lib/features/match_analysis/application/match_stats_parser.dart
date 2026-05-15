@@ -39,6 +39,19 @@ class MatchStatsParser {
       ..sort((a, b) => a.y.compareTo(b.y));
 
     if (elements.isEmpty) return null;
+    
+    // Detect match status (Full Time / Half Time)
+    String matchStatus = 'Unknown';
+    for (final e in rawElements) {
+      if (e.text.toLowerCase().contains('full time')) {
+        matchStatus = 'Full Time';
+        break;
+      }
+      if (e.text.toLowerCase().contains('half time')) {
+        matchStatus = 'Half Time';
+        break;
+      }
+    }
 
     // DEBUG
     for (final el in elements) {
@@ -184,6 +197,7 @@ class MatchStatsParser {
       rightScore: rightScore,
       leftStatsList: leftStatsList,
       rightStatsList: rightStatsList,
+      matchStatus: matchStatus,
       createdAt: DateTime.now(),
     );
   }
