@@ -12,8 +12,6 @@ class HistoryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(historyControllerProvider);
 
-    print("Stte cooy ${state.value}");
-
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D1A),
       appBar: AppBar(
@@ -65,7 +63,6 @@ class HistoryScreen extends ConsumerWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final record = records[index];
-                print("RECORDD COOY ${record.id}");
                 return _HistoryCard(
                   record: record,
                   onDelete: () => ref.read(historyControllerProvider.notifier).deleteRecord(record.id),

@@ -62,10 +62,6 @@ class MatchAnalysisController extends _$MatchAnalysisController {
       state = AsyncData(currentState.copyWith(pendingStats: parsed));
 
     } catch (e, st) {
-      print('ERROR during import: $e');
-      // On error, revert to previous draft state but wrapped in error?
-      // Actually, we can throw the error to UI, but we lose the draft if we do `AsyncError(e, st)`.
-      // Let's attach the error to the state or use AsyncError with previous data.
       state = AsyncError<MatchDraftState>(e, st).copyWithPrevious(AsyncData(currentState));
     }
   }

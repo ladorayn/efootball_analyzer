@@ -15,19 +15,10 @@ class HistoryController extends _$HistoryController {
     final isar = Isar.getInstance();
     if (isar == null) return [];
 
-    final check = await isar.matchRecords.where().sortByCreatedAtDesc().findFirst();
-
-    if (check != null) {
-      print("RECORDD CHECKK ID ${check.id}");
-      print("RECORDD CHECKK FULL TIME SCORE ${check.fullTime?.leftScore} - ${check.fullTime?.rightScore}");
-      print("RECORDD CHECKK HT SCORE ${check.halfTime?.leftScore} - ${check.halfTime?.rightScore}");
-    }
-
     return await isar.matchRecords.where().sortByCreatedAtDesc().findAll();
   }
 
   Future<void> deleteRecord(int id) async {
-    print("DELETE RECORD BROO ${id}");
     final isar = Isar.getInstance();
     if (isar == null) return;
 

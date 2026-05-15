@@ -53,15 +53,8 @@ class MatchStatsParser {
       }
     }
 
-    // DEBUG
-    for (final el in elements) {
-      print('PARSER ELEMENT | x:${el.x.toInt()} y:${el.y.toInt()} | "${el.text}"');
-    }
-
-    // Step 2 — determine screen midpoint X
     final allX = elements.map((e) => e.x).toList()..sort();
     final double screenMidX = (allX.first + allX.last) / 2;
-    print('MIDPOINT X: ${screenMidX.toInt()}');
 
     // Find the Y coordinate of the first stat label to define the header zone
     final statLabelElements = elements.where((e) {
@@ -69,12 +62,10 @@ class MatchStatsParser {
     }).toList();
 
     if (statLabelElements.isEmpty) {
-      print('NO STAT LABELS FOUND');
       return null;
     }
 
     final topStatY = statLabelElements.map((e) => e.y).reduce((a, b) => a < b ? a : b);
-    print('TOP STAT Y: ${topStatY.toInt()}');
 
     // Step 3 — parse header line
     // Header elements are those above the top stat label
@@ -108,10 +99,7 @@ class MatchStatsParser {
       rightName = rightText;
     }
 
-    print('LEFT: "$leftName" $leftScore | RIGHT: "$rightName" $rightScore');
-
     if (leftName.isEmpty || rightName.isEmpty) {
-      print('NAME EMPTY — leftName:"$leftName" rightName:"$rightName"');
       return null;
     }
 
@@ -152,11 +140,6 @@ class MatchStatsParser {
       }
     }
 
-    print('LABELS FOUND: ${labelPositions.values.toList()}');
-    print('LEFT NUMBERS: $leftNumbers');
-    print('RIGHT NUMBERS: $rightNumbers');
-
-    // Step 5 — match labels to closest numbers by Y position
     final leftStatsList = <String>[];
     final rightStatsList = <String>[];
 
@@ -186,8 +169,6 @@ class MatchStatsParser {
 
       leftStatsList.add('$label:$leftVal');
       rightStatsList.add('$label:$rightVal');
-
-      print('STAT "$label" y:${labelY.toInt()} → left:$leftVal right:$rightVal');
     }
 
     return MatchStats(
