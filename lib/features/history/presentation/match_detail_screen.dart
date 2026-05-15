@@ -40,6 +40,11 @@ class MatchDetailScreen extends StatelessWidget {
   }
 
   Widget _buildHeader() {
+    final stats = record.latestStats;
+    if (stats == null) return const SizedBox.shrink();
+
+    final isUserLeft = stats.userSide == 'left';
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -59,22 +64,22 @@ class MatchDetailScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  record.userName,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  isUserLeft ? '${stats.leftName} (You)' : stats.leftName,
+                  style: TextStyle(color: isUserLeft ? Colors.blueAccent : Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
-                  '${record.userScore} - ${record.opponentScore}',
+                  '${stats.leftScore} - ${stats.rightScore}',
                   style: const TextStyle(color: Colors.yellow, fontSize: 32, fontWeight: FontWeight.bold),
                 ),
               ),
               Expanded(
                 child: Text(
-                  record.opponentName,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  !isUserLeft ? '${stats.rightName} (You)' : stats.rightName,
+                  style: TextStyle(color: !isUserLeft ? Colors.blueAccent : Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),

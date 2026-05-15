@@ -183,6 +183,7 @@ class MatchStatsScreen extends ConsumerWidget {
             title: 'Half Time Stats',
             stats: record.halfTime,
             icon: Icons.timelapse,
+            onTap: () => ref.read(matchAnalysisControllerProvider.notifier).toggleSide('Half Time'),
           ),
           const SizedBox(height: 12),
           
@@ -191,6 +192,7 @@ class MatchStatsScreen extends ConsumerWidget {
             title: 'Full Time Stats',
             stats: record.fullTime,
             icon: Icons.sports_soccer,
+            onTap: () => ref.read(matchAnalysisControllerProvider.notifier).toggleSide('Full Time'),
           ),
 
           const SizedBox(height: 32),
@@ -198,23 +200,25 @@ class MatchStatsScreen extends ConsumerWidget {
           // Save Button
           if (isComplete)
             ElevatedButton(
-              onPressed: () {
-                ref.read(matchAnalysisControllerProvider.notifier).saveMatchRecord();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Row(
-                      children: [
-                        Icon(Icons.check_circle_outline, color: Colors.white),
-                        SizedBox(width: 12),
-                        Text('Match saved to history!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                      ],
+              onPressed: () async {
+                final success = await ref.read(matchAnalysisControllerProvider.notifier).saveMatchRecord();
+                if (success && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Row(
+                        children: [
+                          Icon(Icons.check_circle_outline, color: Colors.white),
+                          SizedBox(width: 12),
+                          Text('Match saved to history!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                      backgroundColor: Colors.green.shade700,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      margin: const EdgeInsets.all(16),
                     ),
-                    backgroundColor: Colors.green.shade700,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    margin: const EdgeInsets.all(16),
-                  ),
-                );
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green.shade700,
@@ -234,8 +238,14 @@ class _DraftSlot extends StatelessWidget {
   final String title;
   final MatchStats? stats;
   final IconData icon;
+  final VoidCallback onTap;
 
-  const _DraftSlot({required this.title, required this.stats, required this.icon});
+  const _DraftSlot({
+    required this.title, 
+    required this.stats, 
+    required this.icon,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -259,34 +269,58 @@ class _DraftSlot extends StatelessWidget {
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A2E),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.shade800),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: Colors.green),
-              const SizedBox(width: 12),
-              Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              const Spacer(),
-              const Icon(Icons.check_circle, color: Colors.green, size: 20),
-            ],
-          ),
-          const Divider(color: Colors.white12, height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('${stats!.userName} (You)', style: const TextStyle(color: Colors.blueAccent)),
-              Text('${stats!.userScore} - ${stats!.opponentScore}', style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 18)),
-              Text(stats!.opponentName, style: const TextStyle(color: Colors.redAccent)),
-            ],
-          ),
-        ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1A1A2E),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.green.shade800),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: Colors.green),
+                const SizedBox(width: 12),
+                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                const Spacer(),
+                const Text('Tap to Swap Side', style: TextStyle(color: Colors.white38, fontSize: 10)),
+                const SizedBox(width: 8),
+                const Icon(Icons.check_circle, color: Colors.green, size: 20),
+              ],
+            ),
+            const Divider(color: Colors.white12, height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    stats!.userSide == 'left' ? '${stats!.leftName} (You)' : stats!.leftName,
+                    style: TextStyle(color: stats!.userSide == 'left' ? Colors.blueAccent : Colors.white),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    '${stats!.leftScore} - ${stats!.rightScore}',
+                    style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    stats!.userSide == 'right' ? '${stats!.rightName} (You)' : stats!.rightName,
+                    style: TextStyle(color: stats!.userSide == 'right' ? Colors.blueAccent : Colors.white),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

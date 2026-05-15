@@ -58,7 +58,7 @@ class MatchAnalysisController extends _$MatchAnalysisController {
         throw Exception("You have already uploaded a Full Time screenshot for this match.");
       }
 
-      // Put the parsed stats into pending for user confirmation
+      // Put the parsed stats into pending for manual user confirmation
       state = AsyncData(currentState.copyWith(pendingStats: parsed));
 
     } catch (e, st) {
@@ -95,9 +95,9 @@ class MatchAnalysisController extends _$MatchAnalysisController {
     state = AsyncData(currentState.copyWith(pendingStats: null));
   }
 
-  Future<void> saveMatchRecord() async {
+  Future<bool> saveMatchRecord() async {
     final currentState = state.value;
-    if (currentState == null) return;
+    if (currentState == null) return false;
     
     state = const AsyncLoading();
 
@@ -116,8 +116,10 @@ class MatchAnalysisController extends _$MatchAnalysisController {
       state = AsyncData(MatchDraftState(
         record: MatchRecord(createdAt: DateTime.now()),
       ));
+      return true;
     } catch (e, st) {
       state = AsyncError<MatchDraftState>(e, st).copyWithPrevious(AsyncData(currentState));
+      return false;
     }
   }
 
@@ -125,5 +127,21 @@ class MatchAnalysisController extends _$MatchAnalysisController {
     state = AsyncData(MatchDraftState(
       record: MatchRecord(createdAt: DateTime.now()),
     ));
+  }
+
+  void toggleSide(String status) {
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    MatchRecord record = currentState.record;
+    if (status == 'Half Time' && record.halfTime != null) {
+      final newSide = record.halfTime!.userSide == 'left' ? 'right' : 'left';
+      record = record.copyWith(halfTime: record.halfTime!.copyWith(userSide: newSide));
+    } else if (status == 'Full Time' && record.fullTime != null) {
+      final newSide = record.fullTime!.userSide == 'left' ? 'right' : 'left';
+      record = record.copyWith(fullTime: record.fullTime!.copyWith(userSide: newSide));
+    }
+
+    state = AsyncData(currentState.copyWith(record: record));
   }
 }

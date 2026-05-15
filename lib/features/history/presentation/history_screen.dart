@@ -87,6 +87,8 @@ class _HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('MMM dd, yyyy - HH:mm');
+    final stats = record.latestStats;
+    if (stats == null) return const SizedBox.shrink();
 
     return Dismissible(
       key: Key('record_${record.id ?? DateTime.now().millisecondsSinceEpoch}'),
@@ -165,22 +167,23 @@ class _HistoryCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      record.userName,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                      stats.userSide == 'left' ? '${stats.leftName} (You)' : stats.leftName,
+                      style: TextStyle(color: stats.userSide == 'left' ? Colors.blueAccent : Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                       textAlign: TextAlign.right,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      '${record.userScore} - ${record.opponentScore}',
+                      '${stats.leftScore} - ${stats.rightScore}',
                       style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 20),
                     ),
                   ),
                   Expanded(
                     child: Text(
-                      record.opponentName,
-                      style: TextStyle(color: Colors.grey.shade300, fontWeight: FontWeight.bold, fontSize: 14),
+                      stats.userSide == 'right' ? '${stats.rightName} (You)' : stats.rightName,
+                      style: TextStyle(color: stats.userSide == 'right' ? Colors.blueAccent : Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                      textAlign: TextAlign.left,
                     ),
                   ),
                 ],
