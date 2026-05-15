@@ -33,19 +33,28 @@ const MatchRecordSchema = CollectionSchema(
       name: r'halfTime',
       type: IsarType.object,
       target: r'MatchStats',
-    ),
-    r'id': PropertySchema(
-      id: 3,
-      name: r'id',
-      type: IsarType.long,
     )
   },
   estimateSize: _matchRecordEstimateSize,
   serialize: _matchRecordSerialize,
   deserialize: _matchRecordDeserialize,
   deserializeProp: _matchRecordDeserializeProp,
-  idName: r'isarId',
-  indexes: {},
+  idName: r'id',
+  indexes: {
+    r'createdAt': IndexSchema(
+      id: -3433535483987302584,
+      name: r'createdAt',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'createdAt',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    )
+  },
   links: {},
   embeddedSchemas: {r'MatchStats': MatchStatsSchema},
   getId: _matchRecordGetId,
@@ -98,7 +107,6 @@ void _matchRecordSerialize(
     MatchStatsSchema.serialize,
     object.halfTime,
   );
-  writer.writeLong(offsets[3], object.id);
 }
 
 MatchRecord _matchRecordDeserialize(
@@ -119,7 +127,7 @@ MatchRecord _matchRecordDeserialize(
       MatchStatsSchema.deserialize,
       allOffsets,
     ),
-    id: reader.readLong(offsets[3]),
+    id: id,
   );
   return object;
 }
@@ -145,15 +153,13 @@ P _matchRecordDeserializeProp<P>(
         MatchStatsSchema.deserialize,
         allOffsets,
       )) as P;
-    case 3:
-      return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
 Id _matchRecordGetId(MatchRecord object) {
-  return object.isarId;
+  return object.id;
 }
 
 List<IsarLinkBase<dynamic>> _matchRecordGetLinks(MatchRecord object) {
@@ -161,83 +167,181 @@ List<IsarLinkBase<dynamic>> _matchRecordGetLinks(MatchRecord object) {
 }
 
 void _matchRecordAttach(
-    IsarCollection<dynamic> col, Id id, MatchRecord object) {}
+    IsarCollection<dynamic> col, Id id, MatchRecord object) {
+  object.id = id;
+}
 
 extension MatchRecordQueryWhereSort
     on QueryBuilder<MatchRecord, MatchRecord, QWhere> {
-  QueryBuilder<MatchRecord, MatchRecord, QAfterWhere> anyIsarId() {
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhere> anyCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'createdAt'),
+      );
     });
   }
 }
 
 extension MatchRecordQueryWhere
     on QueryBuilder<MatchRecord, MatchRecord, QWhereClause> {
-  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> isarIdEqualTo(
-      Id isarId) {
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
-        lower: isarId,
-        upper: isarId,
+        lower: id,
+        upper: id,
       ));
     });
   }
 
-  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> isarIdNotEqualTo(
-      Id isarId) {
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> idNotEqualTo(
+      Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(
-              IdWhereClause.lessThan(upper: isarId, includeUpper: false),
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
             )
             .addWhereClause(
-              IdWhereClause.greaterThan(lower: isarId, includeLower: false),
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
             );
       } else {
         return query
             .addWhereClause(
-              IdWhereClause.greaterThan(lower: isarId, includeLower: false),
+              IdWhereClause.greaterThan(lower: id, includeLower: false),
             )
             .addWhereClause(
-              IdWhereClause.lessThan(upper: isarId, includeUpper: false),
+              IdWhereClause.lessThan(upper: id, includeUpper: false),
             );
       }
     });
   }
 
-  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> isarIdGreaterThan(
-      Id isarId,
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> idGreaterThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
-        IdWhereClause.greaterThan(lower: isarId, includeLower: include),
+        IdWhereClause.greaterThan(lower: id, includeLower: include),
       );
     });
   }
 
-  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> isarIdLessThan(
-      Id isarId,
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> idLessThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
-        IdWhereClause.lessThan(upper: isarId, includeUpper: include),
+        IdWhereClause.lessThan(upper: id, includeUpper: include),
       );
     });
   }
 
-  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> isarIdBetween(
-    Id lowerIsarId,
-    Id upperIsarId, {
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> idBetween(
+    Id lowerId,
+    Id upperId, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
-        lower: lowerIsarId,
+        lower: lowerId,
         includeLower: includeLower,
-        upper: upperIsarId,
+        upper: upperId,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> createdAtEqualTo(
+      DateTime createdAt) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'createdAt',
+        value: [createdAt],
+      ));
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> createdAtNotEqualTo(
+      DateTime createdAt) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdAt',
+              lower: [],
+              upper: [createdAt],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdAt',
+              lower: [createdAt],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdAt',
+              lower: [createdAt],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'createdAt',
+              lower: [],
+              upper: [createdAt],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause>
+      createdAtGreaterThan(
+    DateTime createdAt, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'createdAt',
+        lower: [createdAt],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> createdAtLessThan(
+    DateTime createdAt, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'createdAt',
+        lower: [],
+        upper: [createdAt],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterWhereClause> createdAtBetween(
+    DateTime lowerCreatedAt,
+    DateTime upperCreatedAt, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'createdAt',
+        lower: [lowerCreatedAt],
+        includeLower: includeLower,
+        upper: [upperCreatedAt],
         includeUpper: includeUpper,
       ));
     });
@@ -339,7 +443,7 @@ extension MatchRecordQueryFilter
   }
 
   QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition> idEqualTo(
-      int value) {
+      Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
@@ -349,7 +453,7 @@ extension MatchRecordQueryFilter
   }
 
   QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition> idGreaterThan(
-    int value, {
+    Id value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -362,7 +466,7 @@ extension MatchRecordQueryFilter
   }
 
   QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition> idLessThan(
-    int value, {
+    Id value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -375,60 +479,6 @@ extension MatchRecordQueryFilter
   }
 
   QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition> idBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition> isarIdEqualTo(
-      Id value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'isarId',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition>
-      isarIdGreaterThan(
-    Id value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'isarId',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition> isarIdLessThan(
-    Id value, {
-    bool include = false,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'isarId',
-        value: value,
-      ));
-    });
-  }
-
-  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition> isarIdBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
@@ -436,7 +486,7 @@ extension MatchRecordQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'isarId',
+        property: r'id',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -479,18 +529,6 @@ extension MatchRecordQuerySortBy
       return query.addSortBy(r'createdAt', Sort.desc);
     });
   }
-
-  QueryBuilder<MatchRecord, MatchRecord, QAfterSortBy> sortById() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'id', Sort.asc);
-    });
-  }
-
-  QueryBuilder<MatchRecord, MatchRecord, QAfterSortBy> sortByIdDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'id', Sort.desc);
-    });
-  }
 }
 
 extension MatchRecordQuerySortThenBy
@@ -518,18 +556,6 @@ extension MatchRecordQuerySortThenBy
       return query.addSortBy(r'id', Sort.desc);
     });
   }
-
-  QueryBuilder<MatchRecord, MatchRecord, QAfterSortBy> thenByIsarId() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isarId', Sort.asc);
-    });
-  }
-
-  QueryBuilder<MatchRecord, MatchRecord, QAfterSortBy> thenByIsarIdDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'isarId', Sort.desc);
-    });
-  }
 }
 
 extension MatchRecordQueryWhereDistinct
@@ -539,19 +565,13 @@ extension MatchRecordQueryWhereDistinct
       return query.addDistinctBy(r'createdAt');
     });
   }
-
-  QueryBuilder<MatchRecord, MatchRecord, QDistinct> distinctById() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'id');
-    });
-  }
 }
 
 extension MatchRecordQueryProperty
     on QueryBuilder<MatchRecord, MatchRecord, QQueryProperty> {
-  QueryBuilder<MatchRecord, int, QQueryOperations> isarIdProperty() {
+  QueryBuilder<MatchRecord, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'isarId');
+      return query.addPropertyName(r'id');
     });
   }
 
@@ -572,34 +592,4 @@ extension MatchRecordQueryProperty
       return query.addPropertyName(r'halfTime');
     });
   }
-
-  QueryBuilder<MatchRecord, int, QQueryOperations> idProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'id');
-    });
-  }
 }
-
-// **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
-
-_$MatchRecordImpl _$$MatchRecordImplFromJson(Map<String, dynamic> json) =>
-    _$MatchRecordImpl(
-      id: (json['id'] as num?)?.toInt() ?? Isar.autoIncrement,
-      halfTime: json['halfTime'] == null
-          ? null
-          : MatchStats.fromJson(json['halfTime'] as Map<String, dynamic>),
-      fullTime: json['fullTime'] == null
-          ? null
-          : MatchStats.fromJson(json['fullTime'] as Map<String, dynamic>),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-    );
-
-Map<String, dynamic> _$$MatchRecordImplToJson(_$MatchRecordImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'halfTime': instance.halfTime,
-      'fullTime': instance.fullTime,
-      'createdAt': instance.createdAt.toIso8601String(),
-    };

@@ -95,10 +95,15 @@ class MatchStatsScreen extends ConsumerWidget {
               children: [
                 const Icon(Icons.error_outline, color: Colors.white),
                 const SizedBox(width: 12),
-                Expanded(child: Text(next.error.toString().replaceAll('Exception: ', ''))),
+                Expanded(
+                  child: Text(
+                    next.error.toString().replaceAll('Exception: ', ''),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                  ),
+                ),
               ],
             ),
-            backgroundColor: Colors.red.shade900,
+            backgroundColor: const Color(0xFFD32F2F),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             margin: const EdgeInsets.all(16),
@@ -196,7 +201,19 @@ class MatchStatsScreen extends ConsumerWidget {
               onPressed: () {
                 ref.read(matchAnalysisControllerProvider.notifier).saveMatchRecord();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Match saved to history!'), backgroundColor: Colors.green),
+                  SnackBar(
+                    content: const Row(
+                      children: [
+                        Icon(Icons.check_circle_outline, color: Colors.white),
+                        SizedBox(width: 12),
+                        Text('Match saved to history!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                    backgroundColor: Colors.green.shade700,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    margin: const EdgeInsets.all(16),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(

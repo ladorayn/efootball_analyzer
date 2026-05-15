@@ -1,26 +1,40 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';
 import 'package:flutter/material.dart';
 import 'match_stats.dart';
 
-part 'match_record.freezed.dart';
 part 'match_record.g.dart';
 
-@freezed
-@Collection(ignore: {'copyWith'})
-class MatchRecord with _$MatchRecord {
-  const MatchRecord._();
+@Collection()
+class MatchRecord {
+  Id id = Isar.autoIncrement;
 
-  const factory MatchRecord({
-    @Default(Isar.autoIncrement) int id,
+  @Index()
+  DateTime createdAt;
+
+  MatchStats? halfTime;
+  MatchStats? fullTime;
+
+  MatchRecord({
+    required this.createdAt,
+    this.halfTime,
+    this.fullTime,
+    this.id = Isar.autoIncrement,
+  });
+
+  MatchRecord copyWith({
     MatchStats? halfTime,
     MatchStats? fullTime,
-    required DateTime createdAt,
-  }) = _MatchRecord;
-
-  factory MatchRecord.fromJson(Map<String, dynamic> json) => _$MatchRecordFromJson(json);
-
-  Id get isarId => id; // Isar will use this as the primary key
+    DateTime? createdAt,
+    Id? id,
+  }) {
+    final record = MatchRecord(
+      halfTime: halfTime ?? this.halfTime,
+      fullTime: fullTime ?? this.fullTime,
+      createdAt: createdAt ?? this.createdAt,
+    );
+    record.id = id ?? this.id;
+    return record;
+  }
 
   @ignore
   bool get isComplete => halfTime != null && fullTime != null;
@@ -30,13 +44,10 @@ class MatchRecord with _$MatchRecord {
 
   @ignore
   String get userName => latestStats?.userName ?? 'Unknown';
-
   @ignore
   String get opponentName => latestStats?.opponentName ?? 'Unknown';
-
   @ignore
   int get userScore => latestStats?.userScore ?? 0;
-
   @ignore
   int get opponentScore => latestStats?.opponentScore ?? 0;
 

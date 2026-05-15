@@ -115,13 +115,13 @@ MatchStats _matchStatsDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = MatchStats(
-    leftName: reader.readString(offsets[0]),
-    leftScore: reader.readLong(offsets[1]),
-    leftStatsList: reader.readStringList(offsets[2]) ?? [],
-    matchStatus: reader.readString(offsets[3]),
-    rightName: reader.readString(offsets[4]),
-    rightScore: reader.readLong(offsets[5]),
-    rightStatsList: reader.readStringList(offsets[6]) ?? [],
+    leftName: reader.readStringOrNull(offsets[0]) ?? '',
+    leftScore: reader.readLongOrNull(offsets[1]) ?? 0,
+    leftStatsList: reader.readStringList(offsets[2]) ?? const [],
+    matchStatus: reader.readStringOrNull(offsets[3]) ?? 'Unknown',
+    rightName: reader.readStringOrNull(offsets[4]) ?? '',
+    rightScore: reader.readLongOrNull(offsets[5]) ?? 0,
+    rightStatsList: reader.readStringList(offsets[6]) ?? const [],
     userSide: reader.readStringOrNull(offsets[7]),
   );
   return object;
@@ -135,19 +135,19 @@ P _matchStatsDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset) ?? '') as P;
     case 1:
-      return (reader.readLong(offset)) as P;
+      return (reader.readLongOrNull(offset) ?? 0) as P;
     case 2:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readStringList(offset) ?? const []) as P;
     case 3:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset) ?? 'Unknown') as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset) ?? '') as P;
     case 5:
-      return (reader.readLong(offset)) as P;
+      return (reader.readLongOrNull(offset) ?? 0) as P;
     case 6:
-      return (reader.readStringList(offset) ?? []) as P;
+      return (reader.readStringList(offset) ?? const []) as P;
     case 7:
       return (reader.readStringOrNull(offset)) as P;
     default:
@@ -1275,37 +1275,3 @@ extension MatchStatsQueryFilter
 
 extension MatchStatsQueryObject
     on QueryBuilder<MatchStats, MatchStats, QFilterCondition> {}
-
-// **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
-
-_$MatchStatsImpl _$$MatchStatsImplFromJson(Map<String, dynamic> json) =>
-    _$MatchStatsImpl(
-      leftName: json['leftName'] as String? ?? '',
-      rightName: json['rightName'] as String? ?? '',
-      leftScore: (json['leftScore'] as num?)?.toInt() ?? 0,
-      rightScore: (json['rightScore'] as num?)?.toInt() ?? 0,
-      leftStatsList: (json['leftStatsList'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      rightStatsList: (json['rightStatsList'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const [],
-      matchStatus: json['matchStatus'] as String? ?? 'Unknown',
-      userSide: json['userSide'] as String?,
-    );
-
-Map<String, dynamic> _$$MatchStatsImplToJson(_$MatchStatsImpl instance) =>
-    <String, dynamic>{
-      'leftName': instance.leftName,
-      'rightName': instance.rightName,
-      'leftScore': instance.leftScore,
-      'rightScore': instance.rightScore,
-      'leftStatsList': instance.leftStatsList,
-      'rightStatsList': instance.rightStatsList,
-      'matchStatus': instance.matchStatus,
-      'userSide': instance.userSide,
-    };

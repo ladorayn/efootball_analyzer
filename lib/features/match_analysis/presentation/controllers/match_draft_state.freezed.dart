@@ -31,9 +31,6 @@ abstract class $MatchDraftStateCopyWith<$Res> {
       _$MatchDraftStateCopyWithImpl<$Res, MatchDraftState>;
   @useResult
   $Res call({MatchRecord record, MatchStats? pendingStats});
-
-  $MatchRecordCopyWith<$Res> get record;
-  $MatchStatsCopyWith<$Res>? get pendingStats;
 }
 
 /// @nodoc
@@ -63,26 +60,6 @@ class _$MatchDraftStateCopyWithImpl<$Res, $Val extends MatchDraftState>
               as MatchStats?,
     ) as $Val);
   }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $MatchRecordCopyWith<$Res> get record {
-    return $MatchRecordCopyWith<$Res>(_value.record, (value) {
-      return _then(_value.copyWith(record: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $MatchStatsCopyWith<$Res>? get pendingStats {
-    if (_value.pendingStats == null) {
-      return null;
-    }
-
-    return $MatchStatsCopyWith<$Res>(_value.pendingStats!, (value) {
-      return _then(_value.copyWith(pendingStats: value) as $Val);
-    });
-  }
 }
 
 /// @nodoc
@@ -94,11 +71,6 @@ abstract class _$$MatchDraftStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call({MatchRecord record, MatchStats? pendingStats});
-
-  @override
-  $MatchRecordCopyWith<$Res> get record;
-  @override
-  $MatchStatsCopyWith<$Res>? get pendingStats;
 }
 
 /// @nodoc

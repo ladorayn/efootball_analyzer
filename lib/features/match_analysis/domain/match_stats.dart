@@ -1,29 +1,51 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:isar/isar.dart';
 import 'package:flutter/material.dart';
 
-part 'match_stats.freezed.dart';
 part 'match_stats.g.dart';
 
-@freezed
-@Embedded(ignore: {'copyWith'})
-class MatchStats with _$MatchStats {
-  const MatchStats._();
+@Embedded()
+class MatchStats {
+  String leftName;
+  String rightName;
+  int leftScore;
+  int rightScore;
+  List<String> leftStatsList;
+  List<String> rightStatsList;
+  String matchStatus;
+  String? userSide;
 
-  const factory MatchStats({
-    @Default('') String leftName,
-    @Default('') String rightName,
-    @Default(0) int leftScore,
-    @Default(0) int rightScore,
-    @Default([]) List<String> leftStatsList,
-    @Default([]) List<String> rightStatsList,
-    @Default('Unknown') String matchStatus,
+  MatchStats({
+    this.leftName = '',
+    this.rightName = '',
+    this.leftScore = 0,
+    this.rightScore = 0,
+    this.leftStatsList = const [],
+    this.rightStatsList = const [],
+    this.matchStatus = 'Unknown',
+    this.userSide,
+  });
+
+  MatchStats copyWith({
+    String? leftName,
+    String? rightName,
+    int? leftScore,
+    int? rightScore,
+    List<String>? leftStatsList,
+    List<String>? rightStatsList,
+    String? matchStatus,
     String? userSide,
-  }) = _MatchStats;
-
-  // Isar requires a default constructor for deserialization.
-  // We use freezed's fromJson to handle JSON serialization (useful for AI models).
-  factory MatchStats.fromJson(Map<String, dynamic> json) => _$MatchStatsFromJson(json);
+  }) {
+    return MatchStats(
+      leftName: leftName ?? this.leftName,
+      rightName: rightName ?? this.rightName,
+      leftScore: leftScore ?? this.leftScore,
+      rightScore: rightScore ?? this.rightScore,
+      leftStatsList: leftStatsList ?? this.leftStatsList,
+      rightStatsList: rightStatsList ?? this.rightStatsList,
+      matchStatus: matchStatus ?? this.matchStatus,
+      userSide: userSide ?? this.userSide,
+    );
+  }
 
   @ignore
   String get userName => userSide == 'left' ? leftName : rightName;
@@ -38,20 +60,28 @@ class MatchStats with _$MatchStats {
   int get opponentScore => userSide == 'left' ? rightScore : leftScore;
 
   @ignore
-  Map<String, String> get userStats => userSide == 'left' ? leftStats : rightStats;
-
-  @ignore
-  Map<String, String> get opponentStats => userSide == 'left' ? rightStats : leftStats;
-
-  @ignore
   Map<String, String> get leftStats {
-    return {for (final s in leftStatsList) if (s.contains(':')) s.split(':')[0]: s.substring(s.indexOf(':') + 1)};
+    return {
+      for (final s in leftStatsList)
+        if (s.contains(':')) s.split(':')[0]: s.substring(s.indexOf(':') + 1)
+    };
   }
 
   @ignore
   Map<String, String> get rightStats {
-    return {for (final s in rightStatsList) if (s.contains(':')) s.split(':')[0]: s.substring(s.indexOf(':') + 1)};
+    return {
+      for (final s in rightStatsList)
+        if (s.contains(':')) s.split(':')[0]: s.substring(s.indexOf(':') + 1)
+    };
   }
+
+  @ignore
+  Map<String, String> get userStats =>
+      userSide == 'left' ? leftStats : rightStats;
+
+  @ignore
+  Map<String, String> get opponentStats =>
+      userSide == 'left' ? rightStats : leftStats;
 
   @ignore
   String get result {

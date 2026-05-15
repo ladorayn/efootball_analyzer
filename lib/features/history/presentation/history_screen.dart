@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:efootball_analyzer/features/match_analysis/domain/match_record.dart';
 import 'package:efootball_analyzer/features/history/presentation/controllers/history_controller.dart';
+import 'match_detail_screen.dart';
 
 class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
@@ -10,6 +11,8 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(historyControllerProvider);
+
+    print("Stte cooy ${state.value}");
 
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D1A),
@@ -62,9 +65,10 @@ class HistoryScreen extends ConsumerWidget {
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final record = records[index];
+                print("RECORDD COOY ${record.id}");
                 return _HistoryCard(
                   record: record,
-                  onDelete: () => ref.read(historyControllerProvider.notifier).deleteRecord(record.isarId),
+                  onDelete: () => ref.read(historyControllerProvider.notifier).deleteRecord(record.id),
                 );
               },
             ),
@@ -88,7 +92,7 @@ class _HistoryCard extends StatelessWidget {
     final dateFormat = DateFormat('MMM dd, yyyy - HH:mm');
 
     return Dismissible(
-      key: Key('record_${record.isarId}'),
+      key: Key('record_${record.id ?? DateTime.now().millisecondsSinceEpoch}'),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
@@ -100,64 +104,101 @@ class _HistoryCard extends StatelessWidget {
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       onDismissed: (_) => onDelete(),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1A1A2E),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: record.resultColor.withOpacity(0.5)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  record.result,
-                  style: TextStyle(color: record.resultColor, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.2),
-                ),
-                Text(
-                  dateFormat.format(record.createdAt),
-                  style: const TextStyle(color: Colors.grey, fontSize: 11),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    record.userName,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                    textAlign: TextAlign.right,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MatchDetailScreen(record: record)),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A1A2E),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: record.resultColor.withOpacity(0.5)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    record.result,
+                    style: TextStyle(color: record.resultColor, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.2),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    '${record.userScore} - ${record.opponentScore}',
-                    style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 20),
+                  Row(
+                    children: [
+                      Text(
+                        dateFormat.format(record.createdAt),
+                        style: const TextStyle(color: Colors.grey, fontSize: 11),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: const Color(0xFF1A1A2E),
+                              title: const Text('Delete Match?', style: TextStyle(color: Colors.white)),
+                              content: const Text('Are you sure you want to delete this record?', style: TextStyle(color: Colors.white70)),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    onDelete();
+                                  },
+                                  child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        child: const Icon(Icons.delete_outline, color: Colors.grey, size: 18),
+                      ),
+                    ],
                   ),
-                ),
-                Expanded(
-                  child: Text(
-                    record.opponentName,
-                    style: TextStyle(color: Colors.grey.shade300, fontWeight: FontWeight.bold, fontSize: 14),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      record.userName,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                      textAlign: TextAlign.right,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _StatusBadge(label: 'HT', isPresent: record.halfTime != null),
-                const SizedBox(width: 8),
-                _StatusBadge(label: 'FT', isPresent: record.fullTime != null),
-              ],
-            )
-          ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      '${record.userScore} - ${record.opponentScore}',
+                      style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      record.opponentName,
+                      style: TextStyle(color: Colors.grey.shade300, fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _StatusBadge(label: 'HT', isPresent: record.halfTime != null),
+                  const SizedBox(width: 8),
+                  _StatusBadge(label: 'FT', isPresent: record.fullTime != null),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
