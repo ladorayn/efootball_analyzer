@@ -23,13 +23,19 @@ class MatchDetailScreen extends StatelessWidget {
             _buildHeader(),
             const SizedBox(height: 24),
             if (record.halfTime != null) ...[
-              _SectionHeader(title: 'HALF TIME STATS'),
+              _SectionHeader(
+                title: 'HALF TIME STATS',
+                subtitle: '${record.halfTime!.leftName} ${record.halfTime!.leftScore} - ${record.halfTime!.rightScore} ${record.halfTime!.rightName}',
+              ),
               const SizedBox(height: 12),
               _StatsComparisonTable(stats: record.halfTime!),
               const SizedBox(height: 32),
             ],
             if (record.fullTime != null) ...[
-              _SectionHeader(title: 'FULL TIME STATS'),
+              _SectionHeader(
+                title: 'FULL TIME STATS',
+                subtitle: '${record.fullTime!.leftName} ${record.fullTime!.leftScore} - ${record.fullTime!.rightScore} ${record.fullTime!.rightName}',
+              ),
               const SizedBox(height: 12),
               _StatsComparisonTable(stats: record.fullTime!),
             ],
@@ -93,18 +99,34 @@ class MatchDetailScreen extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
-  const _SectionHeader({required this.title});
+  final String? subtitle;
+  const _SectionHeader({required this.title, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(width: 4, height: 16, color: Colors.blueAccent),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+        Row(
+          children: [
+            Container(width: 4, height: 16, color: Colors.blueAccent),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+            ),
+          ],
         ),
+        if (subtitle != null) ...[
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Text(
+              subtitle!,
+              style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11, fontStyle: FontStyle.italic),
+            ),
+          ),
+        ],
       ],
     );
   }

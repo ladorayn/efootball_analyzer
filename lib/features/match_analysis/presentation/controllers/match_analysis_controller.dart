@@ -102,6 +102,22 @@ class MatchAnalysisController extends _$MatchAnalysisController {
     state = const AsyncLoading();
 
     try {
+      final record = currentState.record;
+      
+      // Validation: Check if HT and FT match if both are present
+      if (record.halfTime != null && record.fullTime != null) {
+        final ht = record.halfTime!;
+        final ft = record.fullTime!;
+        
+        if (ht.leftName != ft.leftName || ht.rightName != ft.rightName) {
+          throw Exception("Match mismatch: Team names in Half Time and Full Time screenshots do not match.");
+        }
+        
+        if (ht.userName != ft.userName) {
+          throw Exception("Side mismatch: You selected different teams as yours in Half Time vs Full Time.");
+        }
+      }
+
       final isar = Isar.getInstance();
       if (isar != null) {
         await isar.writeTxn(() async {
