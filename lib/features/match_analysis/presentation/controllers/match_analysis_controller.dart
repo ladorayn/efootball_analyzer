@@ -8,6 +8,7 @@ import '../../domain/match_record.dart';
 import '../../data/ocr_service.dart';
 import '../../application/match_stats_parser.dart';
 import '../../application/match_summary_parser.dart';
+import '../../application/formation_parser.dart';
 import 'match_draft_state.dart';
 
 part 'match_analysis_controller.g.dart';
@@ -52,6 +53,42 @@ class MatchAnalysisController extends _$MatchAnalysisController {
 
       MatchRecord updatedRecord = currentState.record.copyWith(summary: parsedSummary);
       state = AsyncData(MatchDraftState(record: updatedRecord));
+
+    } catch (e, st) {
+      state = AsyncError<MatchDraftState>(e, st).copyWithPrevious(AsyncData(currentState));
+    }
+  }
+
+  Future<void> importFormation(bool isMyFormation) async {
+    final currentState = state.value;
+    if (currentState == null) return;
+
+    state = const AsyncLoading();
+
+    try {
+      final XFile? picked = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 100,
+      );
+
+      if (picked == null) {
+        state = AsyncData(currentState);
+        return;
+      }
+
+      final imageFile = File(picked.path);
+      final ocrService = ref.read(ocrServiceProvider);
+      
+      final ocrResult = await ocrService.recognize(imageFile);
+      final parsedFormation = FormationParser.parse(ocrResult.elements);
+
+      MatchRecord updatedRecord = currentState.record;
+      if (isMyFormation) {
+        updatedRecord = updatedRecord.copyWith(myFormation: parsedFormation);
+      } else {
+        updatedRecord = updatedRecord.copyWith(opponentFormation: parsedFormation);
+      }
+      state = AsyncData(MatchDraftState(record: updatedRecord, pendingStats: currentState.pendingStats));
 
     } catch (e, st) {
       state = AsyncError<MatchDraftState>(e, st).copyWithPrevious(AsyncData(currentState));

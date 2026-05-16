@@ -184,6 +184,39 @@ class MatchStatsScreen extends ConsumerWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
+          const SizedBox(height: 12),
+
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: record.summary != null ? () => ref.read(matchAnalysisControllerProvider.notifier).importFormation(true) : null,
+                  icon: const Icon(Icons.group),
+                  label: const Text('My Formation', style: TextStyle(fontSize: 12)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: record.summary != null ? const Color(0xFF1A237E) : Colors.grey.shade800,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: record.summary != null ? () => ref.read(matchAnalysisControllerProvider.notifier).importFormation(false) : null,
+                  icon: const Icon(Icons.group_work),
+                  label: const Text('Opponent Formation', style: TextStyle(fontSize: 12)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: record.summary != null ? const Color(0xFF1A237E) : Colors.grey.shade800,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
+          ),
           
           const SizedBox(height: 24),
           const Text(
@@ -246,6 +279,16 @@ class MatchStatsScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 12),
+          ],
+
+          if (record.myFormation != null) ...[
+            _FormationSlot(title: 'My Formation', formation: record.myFormation!),
+            const SizedBox(height: 12),
+          ],
+
+          if (record.opponentFormation != null) ...[
+            _FormationSlot(title: 'Opponent Formation', formation: record.opponentFormation!),
             const SizedBox(height: 12),
           ],
 
@@ -442,6 +485,61 @@ class _SideButton extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FormationSlot extends StatelessWidget {
+  final String title;
+  final dynamic formation;
+
+  const _FormationSlot({
+    required this.title,
+    required this.formation,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A2E),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.green.shade800),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.group, color: Colors.green),
+              const SizedBox(width: 12),
+              Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              const Spacer(),
+              const Icon(Icons.check_circle, color: Colors.green, size: 20),
+            ],
+          ),
+          const Divider(color: Colors.white12, height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Pattern', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                  Text(formation.pattern, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text('Playstyle', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                  Text(formation.playingStyle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

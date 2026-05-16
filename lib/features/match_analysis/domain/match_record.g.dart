@@ -34,8 +34,20 @@ const MatchRecordSchema = CollectionSchema(
       type: IsarType.object,
       target: r'MatchStats',
     ),
-    r'summary': PropertySchema(
+    r'myFormation': PropertySchema(
       id: 3,
+      name: r'myFormation',
+      type: IsarType.object,
+      target: r'TeamFormation',
+    ),
+    r'opponentFormation': PropertySchema(
+      id: 4,
+      name: r'opponentFormation',
+      type: IsarType.object,
+      target: r'TeamFormation',
+    ),
+    r'summary': PropertySchema(
+      id: 5,
       name: r'summary',
       type: IsarType.object,
       target: r'MatchSummary',
@@ -64,7 +76,9 @@ const MatchRecordSchema = CollectionSchema(
   links: {},
   embeddedSchemas: {
     r'MatchStats': MatchStatsSchema,
-    r'MatchSummary': MatchSummarySchema
+    r'MatchSummary': MatchSummarySchema,
+    r'TeamFormation': TeamFormationSchema,
+    r'PlayerPosition': PlayerPositionSchema
   },
   getId: _matchRecordGetId,
   getLinks: _matchRecordGetLinks,
@@ -92,6 +106,22 @@ int _matchRecordEstimateSize(
       bytesCount += 3 +
           MatchStatsSchema.estimateSize(
               value, allOffsets[MatchStats]!, allOffsets);
+    }
+  }
+  {
+    final value = object.myFormation;
+    if (value != null) {
+      bytesCount += 3 +
+          TeamFormationSchema.estimateSize(
+              value, allOffsets[TeamFormation]!, allOffsets);
+    }
+  }
+  {
+    final value = object.opponentFormation;
+    if (value != null) {
+      bytesCount += 3 +
+          TeamFormationSchema.estimateSize(
+              value, allOffsets[TeamFormation]!, allOffsets);
     }
   }
   {
@@ -124,8 +154,20 @@ void _matchRecordSerialize(
     MatchStatsSchema.serialize,
     object.halfTime,
   );
-  writer.writeObject<MatchSummary>(
+  writer.writeObject<TeamFormation>(
     offsets[3],
+    allOffsets,
+    TeamFormationSchema.serialize,
+    object.myFormation,
+  );
+  writer.writeObject<TeamFormation>(
+    offsets[4],
+    allOffsets,
+    TeamFormationSchema.serialize,
+    object.opponentFormation,
+  );
+  writer.writeObject<MatchSummary>(
+    offsets[5],
     allOffsets,
     MatchSummarySchema.serialize,
     object.summary,
@@ -151,8 +193,18 @@ MatchRecord _matchRecordDeserialize(
       allOffsets,
     ),
     id: id,
-    summary: reader.readObjectOrNull<MatchSummary>(
+    myFormation: reader.readObjectOrNull<TeamFormation>(
       offsets[3],
+      TeamFormationSchema.deserialize,
+      allOffsets,
+    ),
+    opponentFormation: reader.readObjectOrNull<TeamFormation>(
+      offsets[4],
+      TeamFormationSchema.deserialize,
+      allOffsets,
+    ),
+    summary: reader.readObjectOrNull<MatchSummary>(
+      offsets[5],
       MatchSummarySchema.deserialize,
       allOffsets,
     ),
@@ -182,6 +234,18 @@ P _matchRecordDeserializeProp<P>(
         allOffsets,
       )) as P;
     case 3:
+      return (reader.readObjectOrNull<TeamFormation>(
+        offset,
+        TeamFormationSchema.deserialize,
+        allOffsets,
+      )) as P;
+    case 4:
+      return (reader.readObjectOrNull<TeamFormation>(
+        offset,
+        TeamFormationSchema.deserialize,
+        allOffsets,
+      )) as P;
+    case 5:
       return (reader.readObjectOrNull<MatchSummary>(
         offset,
         MatchSummarySchema.deserialize,
@@ -530,6 +594,42 @@ extension MatchRecordQueryFilter
   }
 
   QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition>
+      myFormationIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'myFormation',
+      ));
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition>
+      myFormationIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'myFormation',
+      ));
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition>
+      opponentFormationIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'opponentFormation',
+      ));
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition>
+      opponentFormationIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'opponentFormation',
+      ));
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition>
       summaryIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -561,6 +661,20 @@ extension MatchRecordQueryObject
       FilterQuery<MatchStats> q) {
     return QueryBuilder.apply(this, (query) {
       return query.object(q, r'halfTime');
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition> myFormation(
+      FilterQuery<TeamFormation> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'myFormation');
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition>
+      opponentFormation(FilterQuery<TeamFormation> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'opponentFormation');
     });
   }
 
@@ -649,6 +763,20 @@ extension MatchRecordQueryProperty
   QueryBuilder<MatchRecord, MatchStats?, QQueryOperations> halfTimeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'halfTime');
+    });
+  }
+
+  QueryBuilder<MatchRecord, TeamFormation?, QQueryOperations>
+      myFormationProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'myFormation');
+    });
+  }
+
+  QueryBuilder<MatchRecord, TeamFormation?, QQueryOperations>
+      opponentFormationProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'opponentFormation');
     });
   }
 

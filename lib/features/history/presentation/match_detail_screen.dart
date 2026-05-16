@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../match_analysis/domain/match_record.dart';
 import '../../match_analysis/domain/match_stats.dart';
+import 'widgets/formation_minimap.dart';
 
 class MatchDetailScreen extends StatelessWidget {
   final MatchRecord record;
@@ -9,6 +10,8 @@ class MatchDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    print("RECORD ${record.myFormation.toString()}");
     return Scaffold(
       backgroundColor: const Color(0xFF0D0D1A),
       appBar: AppBar(
@@ -22,6 +25,43 @@ class MatchDetailScreen extends StatelessWidget {
           children: [
             _buildHeader(),
             const SizedBox(height: 24),
+            
+            if (record.myFormation != null || record.opponentFormation != null) ...[
+              const _SectionHeader(title: 'FORMATIONS'),
+              const SizedBox(height: 16),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: record.myFormation != null
+                        ? Column(
+                            children: [
+                              Text(record.summary?.leftTeamName ?? 'Home', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12), textAlign: TextAlign.center),
+                              Text('${record.myFormation!.pattern} • ${record.myFormation!.playingStyle}', style: const TextStyle(color: Colors.white54, fontSize: 10), textAlign: TextAlign.center),
+                              const SizedBox(height: 8),
+                              FormationMinimap(formation: record.myFormation!),
+                            ],
+                          )
+                        : const Center(child: Text('N/A', style: TextStyle(color: Colors.white54))),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: record.opponentFormation != null
+                        ? Column(
+                            children: [
+                              Text(record.summary?.rightTeamName ?? 'Away', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12), textAlign: TextAlign.center),
+                              Text('${record.opponentFormation!.pattern} • ${record.opponentFormation!.playingStyle}', style: const TextStyle(color: Colors.white54, fontSize: 10), textAlign: TextAlign.center),
+                              const SizedBox(height: 8),
+                              FormationMinimap(formation: record.opponentFormation!),
+                            ],
+                          )
+                        : const Center(child: Text('N/A', style: TextStyle(color: Colors.white54))),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+            ],
+
             if (record.halfTime != null) ...[
               _SectionHeader(
                 title: 'HALF TIME STATS',
