@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'features/match_analysis/domain/match_record.dart';
+import 'features/core/domain/user_settings.dart';
 import 'features/core/presentation/main_scaffold.dart';
+import 'features/core/presentation/setup_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,19 +13,25 @@ void main() async {
   // Initialize Isar for local storage
   final dir = await getApplicationDocumentsDirectory();
   await Isar.open(
-    [MatchRecordSchema],
+    [MatchRecordSchema, UserSettingsSchema],
     directory: dir.path,
   );
 
+  final isar = Isar.getInstance();
+  final settings = await isar?.userSettings.where().findFirst();
+  final hasUsername = settings != null && settings.username.isNotEmpty;
+
   runApp(
-    const ProviderScope(
-      child: EFootballAnalyzer(),
+    ProviderScope(
+      child: EFootballAnalyzer(hasUsername: hasUsername),
     ),
   );
 }
 
 class EFootballAnalyzer extends StatelessWidget {
-  const EFootballAnalyzer({super.key});
+  final bool hasUsername;
+
+  const EFootballAnalyzer({super.key, required this.hasUsername});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +45,7 @@ class EFootballAnalyzer extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const MainScaffold(),
+      home: hasUsername ? const MainScaffold() : const SetupScreen(),
     );
   }
 }

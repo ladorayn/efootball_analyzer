@@ -158,13 +158,27 @@ class MatchStatsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Summary Action Button
+          ElevatedButton.icon(
+            onPressed: record.summary == null ? () => ref.read(matchAnalysisControllerProvider.notifier).importSummary() : null,
+            icon: const Icon(Icons.receipt_long),
+            label: const Text('Add Match Summary'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: record.summary == null ? const Color(0xFF1A237E) : Colors.grey.shade800,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 12),
+
           // Action Buttons
           ElevatedButton.icon(
-            onPressed: () => ref.read(matchAnalysisControllerProvider.notifier).importAndParse(),
+            onPressed: record.summary != null ? () => ref.read(matchAnalysisControllerProvider.notifier).importAndParse() : null,
             icon: const Icon(Icons.add_a_photo),
             label: const Text('Add Match Screenshot (HT / FT)'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1A237E),
+              backgroundColor: record.summary != null ? const Color(0xFF1A237E) : Colors.grey.shade800,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -177,6 +191,63 @@ class MatchStatsScreen extends ConsumerWidget {
             style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
+
+          // Summary Slot
+          if (record.summary != null) ...[
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1A2E),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.green.shade800),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.receipt_long, color: Colors.green),
+                      const SizedBox(width: 12),
+                      const Text('Match Summary', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      const Spacer(),
+                      const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                    ],
+                  ),
+                  const Divider(color: Colors.white12, height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(record.summary!.leftUsername, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                            Text(record.summary!.leftTeamName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          '${record.summary!.leftScore} - ${record.summary!.rightScore}',
+                          style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(record.summary!.rightUsername, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                            Text(record.summary!.rightTeamName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
 
           // Half Time Slot
           _DraftSlot(

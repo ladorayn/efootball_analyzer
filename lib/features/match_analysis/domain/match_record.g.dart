@@ -33,6 +33,12 @@ const MatchRecordSchema = CollectionSchema(
       name: r'halfTime',
       type: IsarType.object,
       target: r'MatchStats',
+    ),
+    r'summary': PropertySchema(
+      id: 3,
+      name: r'summary',
+      type: IsarType.object,
+      target: r'MatchSummary',
     )
   },
   estimateSize: _matchRecordEstimateSize,
@@ -56,7 +62,10 @@ const MatchRecordSchema = CollectionSchema(
     )
   },
   links: {},
-  embeddedSchemas: {r'MatchStats': MatchStatsSchema},
+  embeddedSchemas: {
+    r'MatchStats': MatchStatsSchema,
+    r'MatchSummary': MatchSummarySchema
+  },
   getId: _matchRecordGetId,
   getLinks: _matchRecordGetLinks,
   attach: _matchRecordAttach,
@@ -85,6 +94,14 @@ int _matchRecordEstimateSize(
               value, allOffsets[MatchStats]!, allOffsets);
     }
   }
+  {
+    final value = object.summary;
+    if (value != null) {
+      bytesCount += 3 +
+          MatchSummarySchema.estimateSize(
+              value, allOffsets[MatchSummary]!, allOffsets);
+    }
+  }
   return bytesCount;
 }
 
@@ -107,6 +124,12 @@ void _matchRecordSerialize(
     MatchStatsSchema.serialize,
     object.halfTime,
   );
+  writer.writeObject<MatchSummary>(
+    offsets[3],
+    allOffsets,
+    MatchSummarySchema.serialize,
+    object.summary,
+  );
 }
 
 MatchRecord _matchRecordDeserialize(
@@ -128,6 +151,11 @@ MatchRecord _matchRecordDeserialize(
       allOffsets,
     ),
     id: id,
+    summary: reader.readObjectOrNull<MatchSummary>(
+      offsets[3],
+      MatchSummarySchema.deserialize,
+      allOffsets,
+    ),
   );
   return object;
 }
@@ -151,6 +179,12 @@ P _matchRecordDeserializeProp<P>(
       return (reader.readObjectOrNull<MatchStats>(
         offset,
         MatchStatsSchema.deserialize,
+        allOffsets,
+      )) as P;
+    case 3:
+      return (reader.readObjectOrNull<MatchSummary>(
+        offset,
+        MatchSummarySchema.deserialize,
         allOffsets,
       )) as P;
     default:
@@ -494,6 +528,24 @@ extension MatchRecordQueryFilter
       ));
     });
   }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition>
+      summaryIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'summary',
+      ));
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition>
+      summaryIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'summary',
+      ));
+    });
+  }
 }
 
 extension MatchRecordQueryObject
@@ -509,6 +561,13 @@ extension MatchRecordQueryObject
       FilterQuery<MatchStats> q) {
     return QueryBuilder.apply(this, (query) {
       return query.object(q, r'halfTime');
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchRecord, QAfterFilterCondition> summary(
+      FilterQuery<MatchSummary> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.object(q, r'summary');
     });
   }
 }
@@ -590,6 +649,12 @@ extension MatchRecordQueryProperty
   QueryBuilder<MatchRecord, MatchStats?, QQueryOperations> halfTimeProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'halfTime');
+    });
+  }
+
+  QueryBuilder<MatchRecord, MatchSummary?, QQueryOperations> summaryProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'summary');
     });
   }
 }

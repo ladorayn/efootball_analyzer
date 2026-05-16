@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:flutter/material.dart';
 import 'match_stats.dart';
+import 'match_summary.dart';
 
 part 'match_record.g.dart';
 
@@ -13,23 +14,27 @@ class MatchRecord {
 
   MatchStats? halfTime;
   MatchStats? fullTime;
+  MatchSummary? summary;
 
   MatchRecord({
     required this.createdAt,
     this.halfTime,
     this.fullTime,
+    this.summary,
     this.id = Isar.autoIncrement,
   });
 
   MatchRecord copyWith({
     MatchStats? halfTime,
     MatchStats? fullTime,
+    MatchSummary? summary,
     DateTime? createdAt,
     Id? id,
   }) {
     final record = MatchRecord(
       halfTime: halfTime ?? this.halfTime,
       fullTime: fullTime ?? this.fullTime,
+      summary: summary ?? this.summary,
       createdAt: createdAt ?? this.createdAt,
     );
     record.id = id ?? this.id;
