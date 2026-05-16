@@ -68,14 +68,6 @@ class MatchSummaryParser {
 
     if (leftUsername.isEmpty && rightUsername.isEmpty) return null;
 
-    print('leftUsername: $leftUsername');
-    print('rightUsername: $rightUsername');
-    print('leftTeamName: $leftTeamName');
-    print('rightTeamName: $rightTeamName');
-    print('leftScore: $leftScore');
-    print('rightScore: $rightScore');
-    print('matchDate: $matchDate');
-
     return MatchSummary(
       leftUsername: leftUsername,
       rightUsername: rightUsername,

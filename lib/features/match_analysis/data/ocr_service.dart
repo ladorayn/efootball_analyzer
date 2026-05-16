@@ -51,14 +51,8 @@ class OcrService {
 
       final text = elements.map((e) => e.text).join('\n');
 
-      print('VISION OCR — ${elements.length} elements');
-      for (final el in elements) {
-        print('VISION | x:${el.x.toInt()} y:${el.y.toInt()} | "${el.text}"');
-      }
-
       return OcrResult(text: text, elements: elements);
     } catch (e) {
-      print('Vision OCR failed: $e — falling back to ML Kit');
       return await _recognizeWithMlKit(imageFile);
     }
   }
@@ -80,11 +74,6 @@ class OcrService {
           y: line.boundingBox.top.toDouble(),
         ));
       }
-    }
-
-    print('ML KIT OCR — ${elements.length} elements');
-    for (final el in elements) {
-      print('MLKIT | x:${el.x.toInt()} y:${el.y.toInt()} | "${el.text}"');
     }
 
     return OcrResult(text: buffer.toString(), elements: elements);
